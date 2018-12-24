@@ -7,13 +7,19 @@
         wait_for_nodes/2,
         wait_for_nodes/3,
         get_env/3]).
+-define(WAIT_FOR_RESCORCES, 2500).
 
 start(_StarType, _StarArgs) ->
   ok = ensure_contact(),
+  resource_discovery:add_local_resource(simple_cache, node()),
+  resource_discovery:add_target_resource_type(simple_cache),
+  resource_discovery:trade_resources(),
+  timer:sleep(?WAIT_FOR_RESCORCES),
   sc_store:init(),
   case sc_sup:start_link() of
     {ok, Pid} ->
       {ok, Pid};
+      
     Other ->
       {error, Other}
   end.
